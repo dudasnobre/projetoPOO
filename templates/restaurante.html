@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurante Costa Bella</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* --- VARIÁVEIS DE CORES --- */
+        :root {
+            --bg-principal: #f4f4f4;
+            --bg-card: #ffffff;
+            --texto-principal: #333333;
+            --texto-secundario: #666666;
+            --nav-bg: #1d4e89;
+            --border-color: #eeeeee;
+        }
+
+        [data-theme="dark"] {
+            --bg-principal: #121212;
+            --bg-card: #1e1e1e;
+            --texto-principal: #ffffff;
+            --texto-secundario: #b0b0b0;
+            --nav-bg: #0f2a4a;
+            --border-color: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-principal);
+            overflow-x: hidden;
+        }
+
+        /* --- NAVEGAÇÃO --- */
+        nav {
+            background: var(--nav-bg);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            color: #f79256;
+            font-size: 22px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover, .btn-theme:hover {
+            color: #7dcfb6;
+        }
+
+        .btn-theme {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        .cart-icon-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .cart-count {
+            background: #f79256;
+            color: #1d4e89;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 2px 6px;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+        }
+
+        /* --- HERO & FILTROS --- */
+        .search-section {
+            background: #00b2ca;
+            padding: 50px 5% 30px 5%;
+            text-align: center;
+            color: white;
+        }
+
+        .search-section h1 { font-size: 36px; margin-bottom: 10px; }
+        .search-section p { margin-bottom: 20px; font-size: 18px; opacity: 0.9; }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 25px auto;
+            display: flex;
+            background: #fff;
+            padding: 5px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .search-container input {
+            flex: 1; border: none; padding: 15px 25px; border-radius: 50px; outline: none; font-size: 16px; color: #333;
+        }
+
+        .search-container button {
+            background: #f79256; border: none; padding: 0 30px; border-radius: 50px; color: #1d4e89; font-weight: bold; cursor: pointer;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: white;
+            color: #00b2ca;
+        }
+
+        .pref-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .pref-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.15);
+            padding: 5px 12px;
+            border-radius: 15px;
+        }
+
+        /* --- SIDEBAR DO CARRINHO --- */
+        .cart-sidebar {
+            position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100vh;
+            background: var(--bg-card); box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 1100;
+            transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px;
+            color: var(--texto-principal);
+        }
+
+        .cart-sidebar.open { right: 0; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .close-cart { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
+        .cart-items { flex: 1; overflow-y: auto; padding: 15px 0; }
+        
+        .cart-item {
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-info h4 { font-size: 15px; margin-bottom: 4px; }
+        .cart-item-info span { color: #00b2ca; font-weight: bold; font-size: 14px; }
+        .cart-item-actions { display: flex; align-items: center; gap: 10px; }
+
+        .cart-item-obs {
+            width: 100%; padding: 6px 10px; border: 1px solid var(--border-color);
+            background: var(--bg-principal); color: var(--texto-principal);
+            border-radius: 6px; font-size: 12px; resize: none; outline: none;
+        }
+
+        .btn-qty {
+            background: var(--bg-principal); border: 1px solid var(--border-color); color: var(--texto-principal);
+            width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-qty:hover { background: #00b2ca; color: white; }
+        
+        .coupon-container { display: flex; gap: 5px; margin-bottom: 15px; }
+        .coupon-container input {
+            flex: 1; padding: 8px 12px; border: 1px solid var(--border-color); background: var(--bg-principal); color: var(--texto-principal); border-radius: 5px; outline: none;
+        }
+        .coupon-container button {
+            background: #1d4e89; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer; font-weight: bold;
+        }
+
+        .payment-container, .delivery-container {
+            background: var(--bg-principal); padding: 10px; border-radius: 8px; margin-bottom: 10px;
+        }
+        .payment-container label, .delivery-container label { font-size: 12px; font-weight: bold; display: block; margin-bottom: 5px; }
+        .payment-container select, .delivery-container select { 
+            width: 100%; padding: 8px; border-radius: 5px; border: 1px solid var(--border-color); 
+            background: var(--bg-card); color: var(--texto-principal); outline: none;
+        }
+        .change-input-wrapper, .address-input-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 13px; }
+        .change-input-wrapper input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); }
+        .address-input-wrapper input { flex: 1; padding: 6px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--texto-principal); }
+
+        .cart-footer { border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .cart-total { display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 5px; }
+        .grand-total { font-size: 20px; font-weight: bold; color: #f79256; margin-top: 5px; border-top: 1px dashed var(--border-color); padding-top: 5px;}
+        .btn-checkout { display: block; width: 100%; background: #f79256; color: #1d4e89; border: none; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; cursor: pointer; font-size: 16px;}
+        .btn-checkout:hover { background: #e07d40; }
+
+        /* --- CONTEÚDO DO MENU --- */
+        .container { padding: 40px 5%; }
+        .category-block { margin-bottom: 40px; }
+        .category-title { color: #1d4e89; margin-bottom: 25px; border-left: 5px solid #f79256; padding-left: 15px; }
+        [data-theme="dark"] .category-title { color: #7dcfb6; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        
+        .food-card {
+            background: var(--bg-card); border-radius: 15px; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: space-between;
+            border: 1px solid var(--border-color);
+        }
+
+        .food-image { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; font-size: 45px; color: #f79256; position: relative;}
+        .food-badge { position: absolute; top: 12px; left: 12px; background: #1d4e89; color: white; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; text-transform: uppercase;}
+        
+        .bg-orange { background-color: #fbd1a2; color: #f79256 !important;}
+        .bg-blue { background-color: #bcecf2; color: #00b2ca !important; }
+        .bg-green { background-color: #cbf3f0; color: #2ec4b6 !important; }
+
+        .food-info { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .food-info h3 { color: #1d4e89; margin-bottom: 8px; font-size: 18px; }
+        [data-theme="dark"] .food-info h3 { color: #00b2ca; }
+        .food-info p { font-size: 14px; color: var(--texto-secundario); margin-bottom: 15px; line-height: 1.4; flex-grow: 1;}
+        
+        .price-container { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .price { color: #00b2ca; font-weight: bold; font-size: 18px; }
+        .btn-add { background: #7dcfb6; color: #1d4e89; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .btn-add:hover { background: #00b2ca; color: white; transform: translateY(-2px); }
+
+        /* RESERVAS E AVALIAÇÃO */
+        .flex-forms { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 40px; }
+        .reservation-section, .review-section { background: #7dcfb6; padding: 40px 5%; border-radius: 15px; flex: 1; min-width: 300px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); color: #1d4e89; }
+        .reservation-section h2, .review-section h2 { text-align: center; color: #1d4e89; margin-bottom: 20px; }
+        .reservation-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .reservation-form input, .reservation-form select { padding: 12px; border: 1px solid #fff; border-radius: 8px; outline: none; background: white; color: #333; }
+        .reservation-form button { grid-column: span 2; padding: 12px; background: #1d4e89; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .reservation-form button:hover { background: #0f2a4a; }
+
+        /* Estrelas */
+        .stars-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; font-size: 30px; }
+        .star { cursor: pointer; color: #fff; transition: color 0.2s; }
+        .star.active { color: #f79256; }
+        .review-section textarea { width: 100%; padding: 10px; border-radius: 8px; border: none; outline: none; resize: none; margin-bottom: 10px; }
+        .btn-review { width: 100%; padding: 12px; background: #1d4e89; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* --- NOTIFICAÇÃO TOAST --- */
+        .toast {
+            position: fixed; bottom: 20px; left: 20px; background: #1d4e89; color: white;
+            padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 2000; display: flex; align-items: center; gap: 10px;
+            transform: translateY(100px); opacity: 0; transition: all 0.3s ease;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        footer { background: #1d4e89; color: white; text-align: center; padding: 30px; margin-top: 60px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" class="logo">🌴 Costa Bella</a>
+        <ul class="nav-links">
+            {% if cargo == 'admin' %}
+            <li><a href="/reservas" style="color: #f79256; font-weight: bold;"><i class="fa-solid fa-list"></i> Ver Reservas (Painel Admin)</a></li>
+            {% endif %}
+            <li><a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a></li>
+            <li>
+                <button class="btn-theme" id="theme-toggle-btn" onclick="alternarTema()">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </li>
+            <li>
+                <button class="cart-icon-btn" id="open-cart-btn">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- SIDEBAR DO CARRINHO -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Sua Sacola</h3>
+            <button class="close-cart" id="close-cart-btn">&times;</button>
+        </div>
+        <div class="cart-items" id="cart-items-container">
+            <!-- Renderizado dinamicamente via JS -->
+        </div>
+        <div class="cart-footer">
+            <div class="coupon-container">
+                <input type="text" id="coupon-input" placeholder="Cupom: PRAIA10">
+                <button onclick="aplicarCupom()">Aplicar</button>
+            </div>
+
+            <!-- Método de Entrega (Delivery ou Retirada) -->
+            <div class="delivery-container">
+                <label for="delivery-method">Como deseja receber?</label>
+                <select id="delivery-method" onchange="verificarMetodoEntrega()">
+                    <option value="retirada">Retirar no Restaurante (Balcão)</option>
+                    <option value="delivery">Delivery (Entrega em Casa)</option>
+                </select>
+                <div id="address-wrapper" class="address-input-wrapper" style="display: none;">
+                    <input type="text" id="delivery-address" placeholder="Digite seu endereço completo">
+                </div>
+            </div>
+
+            <!-- Meio de Pagamento -->
+            <div class="payment-container">
+                <label for="payment-method">Forma de Pagamento:</label>
+                <select id="payment-method" onchange="verificarFormaPagamento()">
+                    <option value="cartao">Cartão (Débito/Crédito)</option>
+                    <option value="pix">Pix</option>
+                    <option value="dinheiro">Dinheiro</option>
+                </select>
+                <div id="change-wrapper" class="change-input-wrapper" style="display: none;">
+                    <span>Troco para quanto? R$</span>
+                    <input type="number" id="change-for" placeholder="0,00" oninput="calcularTroco()">
+                    <span id="change-result" style="font-weight: bold; color: #1d4e89;"></span>
+                </div>
+            </div>
+
+            <div class="cart-total">
+                <span>Subtotal:</span>
+                <span id="cart-subtotal-value">R$ 0,00</span>
+            </div>
+            <div class="cart-total" id="discount-row" style="display: none; color: #1d4e89; font-weight: bold;">
+                <span>Desconto (10%):</span>
+                <span id="cart-discount-value">- R$ 0,00</span>
+            </div>
+            <div class="cart-total grand-total">
+                <span>Total Geral:</span>
+                <span id="cart-total-value">R$ 0,00</span>
+            </div>
+            <button class="btn-checkout" onclick="finalizarPedido()">Enviar Pedido para a Cozinha</button>
+        </div>
+    </div>
+
+    <!-- SEÇÃO HERO -->
+    <header class="search-section">
+        <h1>Cardápio Praiano Chique</h1>
+        <p>Sabores tropicais e sofisticação à beira-mar</p>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="O que deseja saborear hoje?" onkeyup="filtrarCatalogoCompleto()">
+            <button><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+        </div>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-category="todos" onclick="mudarCategoriaMenu('todos', this)">Todos</button>
+            <button class="filter-btn" data-category="entradas" onclick="mudarCategoriaMenu('entradas', this)">Entradas</button>
+            <button class="filter-btn" data-category="principais" onclick="mudarCategoriaMenu('principais', this)">Pratos Principais</button>
+            <button class="filter-btn" data-category="bebidas" onclick="mudarCategoriaMenu('bebidas', this)">Bebidas</button>
+            <button class="filter-btn" data-category="sobremesas" onclick="mudarCategoriaMenu('sobremesas', this)">Sobremesas</button>
+        </div>
+
+        <div class="pref-container">
+            <span class="pref-checkbox"><input type="checkbox" id="pref-veg" onchange="filtrarCatalogoCompleto()"> Vegetariano 🌱</span>
+            <span class="pref-checkbox"><input type="checkbox" id="pref-leve" onchange="filtrarCatalogoCompleto()"> Opções Leves 🍃</span>
+            <span class="pref-checkbox"><input type="checkbox" id="pref-premium" onchange="filtrarCatalogoCompleto()"> Premium/Destaques ⭐</span>
+        </div>
+    </header>
+
+    <!-- GRID DO CARDÁPIO -->
+    <main class="container">
+        
+        <!-- ENTRADAS -->
+        <div class="category-block" id="cat-entradas">
+            <h2 class="category-title">🍽️ Entradas & Petiscos</h2>
+            <div class="menu-grid">
+                <div class="food-card" data-veg="false" data-leve="true" data-premium="false">
+                    <div class="food-image bg-orange"><i class="fa-solid fa-fish"></i><span class="food-badge">Leve</span></div>
+                    <div class="food-info">
+                        <h3>Ceviche Tropical</h3>
+                        <p>Peixe fresco marinado em limão, cubos de manga doce e pimenta dedo-de-moça.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 42,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Ceviche Tropical', 42.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="food-card" data-veg="false" data-leve="false" data-premium="true">
+                    <div class="food-image bg-blue"><i class="fa-solid fa-shrimp"></i><span class="food-badge">Sucesso</span></div>
+                    <div class="food-info">
+                        <h3>Camarão Alho e Óleo</h3>
+                        <p>Camarões selecionados salteados no azeite extra virgem, alho laminado e salsa.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 58,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Camarão Alho e Óleo', 58.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="food-card" data-veg="true" data-leve="false" data-premium="false">
+                    <div class="food-image bg-green"><i class="fa-solid fa-cheese"></i></div>
+                    <div class="food-info">
+                        <h3>Dadinhos de Tapioca</h3>
+                        <p>Dadinhos crocantes com queijo coalho, servidos com geleia de pimenta defumada da casa.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 34,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Dadinhos de Tapioca', 34.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO -->
+                <div class="food-card" data-veg="false" data-leve="false" data-premium="false">
+                    <div class="food-image bg-orange"><i class="fa-solid fa-bacon"></i></div>
+                    <div class="food-info">
+                        <h3>Lula Escabeche</h3>
+                        <p>Anéis de lula empanados e dourados, acompanhados de molho tártaro especial artesanal.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 49,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Lula Escabeche', 49.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRATOS PRINCIPAIS -->
+        <div class="category-block" id="cat-principais">
+            <h2 class="category-title">🍛 Pratos Principais & Combos</h2>
+            <div class="menu-grid">
+                <div class="food-card" data-veg="false" data-leve="false" data-premium="true">
+                    <div class="food-image bg-green"><i class="fa-solid fa-utensils"></i><span class="food-badge">Para Dois</span></div>
+                    <div class="food-info">
+                        <h3>Moqueca Costa Bella</h3>
+                        <p>Postas premium de peixe e camarões grandes no leite de coco legítimo e azeite de dendê.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 120,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Moqueca Costa Bella', 120.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="food-card" data-veg="true" data-leve="false" data-premium="false">
+                    <div class="food-image bg-blue"><i class="fa-solid fa-seedling"></i><span class="food-badge">Vegetariano</span></div>
+                    <div class="food-info">
+                        <h3>Risoto de Cogumelos da Costa</h3>
+                        <p>Arroz arbóreo cozido lentamente com caldo de legumes, mix de cogumelos frescos salteados e manteiga trufada.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 64,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Risoto de Cogumelos da Costa', 64.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO -->
+                <div class="food-card" data-veg="false" data-leve="false" data-premium="true">
+                    <div class="food-image bg-orange"><i class="fa-solid fa-drumstick-bite"></i><span class="food-badge">Premium</span></div>
+                    <div class="food-info">
+                        <h3>Filé Mignon ao Poivre</h3>
+                        <p>Medalhão de filé grelhado ao molho cremoso de pimenta-verde, servido com aligot de batatas.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 89,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Filé Mignon ao Poivre', 89.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO -->
+                <div class="food-card" data-veg="false" data-leve="true" data-premium="false">
+                    <div class="food-image bg-green"><i class="fa-solid fa-fish-flesh"></i><span class="food-badge">Leve</span></div>
+                    <div class="food-info">
+                        <h3>Salmão Grelhado Crocante</h3>
+                        <p>Posta de salmão com crosta de gergelim, acompanhado de aspargos frescos e purê de mandioquinha.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 78,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Salmão Grelhado Crocante', 78.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BEBIDAS -->
+        <div class="category-block" id="cat-bebidas">
+            <h2 class="category-title">🍹 Bebidas & Drinks</h2>
+            <div class="menu-grid">
+                <div class="food-card" data-veg="true" data-leve="true" data-premium="false">
+                    <div class="food-image bg-blue"><i class="fa-solid fa-glass-martini-alt"></i><span class="food-badge">Sem Álcool</span></div>
+                    <div class="food-info">
+                        <h3>Drink de Coco & Abacaxi</h3>
+                        <p>Refrescância pura com água de coco, néctar de abacaxi e folhas frescas de hortelã.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 22,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Drink de Coco & Abacaxi', 22.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO (BEBIDA) -->
+                <div class="food-card" data-veg="true" data-leve="true" data-premium="true">
+                    <div class="food-image bg-green"><i class="fa-solid fa-wine-glass"></i><span class="food-badge">Premium</span></div>
+                    <div class="food-info">
+                        <h3>Soda Italiana de Maçã Verde</h3>
+                        <p>Xarope artesanal de maçã verde infusionado, água gaseificada e gelo triturado.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 16,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Soda Italiana de Maçã Verde', 16.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOBREMESAS -->
+        <div class="category-block" id="cat-sobremesas">
+            <h2 class="category-title">🍨 Sobremesas</h2>
+            <div class="menu-grid">
+                <div class="food-card" data-veg="true" data-leve="false" data-premium="false">
+                    <div class="food-image bg-blue"><i class="fa-solid fa-ice-cream"></i></div>
+                    <div class="food-info">
+                        <h3>Cocada de Forno com Sorvete</h3>
+                        <p>Cocada cremosa dourada em forno a lenha, servida quente com sorvete artesanal de creme.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 26,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Cocada de Forno com Sorvete', 26.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO (SOBREMESA) -->
+                <div class="food-card" data-veg="true" data-leve="false" data-premium="true">
+                    <div class="food-image bg-orange"><i class="fa-solid fa-cake-slice"></i><span class="food-badge">Destaque</span></div>
+                    <div class="food-info">
+                        <h3>Petit Gâteau de Doce de Leite</h3>
+                        <p>Bolo macio de doce de leite argentino com recheio cremoso e fluido, servido com sorvete de queijo.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 29,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Petit Gâteau de Doce de Leite', 29.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOVO PRATO (SOBREMESA) -->
+                <div class="food-card" data-veg="true" data-leve="true" data-premium="false">
+                    <div class="food-image bg-green"><i class="fa-solid fa-lemon"></i><span class="food-badge">Leve</span></div>
+                    <div class="food-info">
+                        <h3>Mousse de Maracujá Silvestre</h3>
+                        <p>Textura aerada e leve, equilibrando o azedinho natural da fruta com calda brilhante de sementes.</p>
+                        <div class="price-container">
+                            <span class="price">R$ 19,00</span>
+                            <button class="btn-add" onclick="adicionarAoCarrinho('Mousse de Maracujá Silvestre', 19.00)">+ Adicionar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIOS INFERIORES -->
+        <div class="flex-forms">
+            <section id="reservas" class="reservation-section">
+                <h2>📅 Faça sua Reserva</h2>
+                <form class="reservation-form" action="/fazer-reserva" method="POST">
+                    <input type="text" name="nome" placeholder="Seu Nome" required>
+                    <input type="tel" name="telefone" placeholder="Telefone de Contato" required>
+                    <input type="date" id="reservation-date" name="data" required>
+                    <select name="pessoas" required>
+                        <option value="">Quantidade de Pessoas</option>
+                        <option value="2 Pessoas">2 Pessoas</option>
+                        <option value="4 Pessoas">4 Pessoas</option>
+                        <option value="6+ Pessoas">6+ Pessoas</option>
+                    </select>
+                    <button type="submit">Confirmar Reserva no Sistema</button>
+                </form>
+            </section>
+
+            <section id="avaliacoes" class="review-section">
+                <h2>⭐ Avalie Sua Visita</h2>
+                <p style="text-align: center; font-size: 14px; opacity: 0.9;">Sua opinião melhora nossa cozinha!</p>
+                <div class="stars-container">
+                    <span class="star" data-value="1" onclick="definirEstrelas(1)"><i class="fa-solid fa-star"></i></span>
+                    <span class="star" data-value="2" onclick="definirEstrelas(2)"><i class="fa-solid fa-star"></i></span>
+                    <span class="star" data-value="3" onclick="definirEstrelas(3)"><i class="fa-solid fa-star"></i></span>
+                    <span class="star" data-value="4" onclick="definirEstrelas(4)"><i class="fa-solid fa-star"></i></span>
+                    <span class="star" data-value="5" onclick="definirEstrelas(5)"><i class="fa-solid fa-star"></i></span>
+                </div>
+                <textarea id="review-text" rows="3" placeholder="Conte o que achou dos pratos e do atendimento..."></textarea>
+                <button class="btn-review" onclick="enviarAvaliacao()">Enviar Feedback</button>
+            </section>
+        </div>
+
+    </main>
+
+    <div id="toast-notification" class="toast">
+        <i class="fa-solid fa-circle-check" style="color: #7dcfb6;"></i>
+        <span id="toast-message">Item adicionado!</span>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Restaurante Costa Bella - Sabores Marcantes à Beira-Mar.</p>
+    </footer>
+
+    <script>
+        let carrinho = JSON.parse(localStorage.getItem('costa_bella_cart')) || [];
+        let descontoAplicado = JSON.parse(localStorage.getItem('costa_bella_discount')) || false;
+        let categoriaAtiva = "todos";
+        let notaAvaliacao = 0;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem('costa_bella_theme') === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-toggle-btn').querySelector('i').className = 'fa-solid fa-sun';
+            }
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('reservation-date').min = hoje;
+
+            atualizarInterfaceCarrinho();
+        });
+
+        function alternarTema() {
+            const body = document.body;
+            const btnIcon = document.getElementById('theme-toggle-btn').querySelector('i');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btnIcon.className = 'fa-solid fa-moon';
+                localStorage.setItem('costa_bella_theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btnIcon.className = 'fa-solid fa-sun';
+                localStorage.setItem('costa_bella_theme', 'dark');
+            }
+        }
+
+        function mudarCategoriaMenu(categoria, elemento) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            elemento.classList.add('active');
+            categoriaAtiva = categoria;
+            filtrarCatalogoCompleto();
+        }
+
+        function filtrarCatalogoCompleto() {
+            const textoBusca = document.getElementById('search-input').value.toLowerCase();
+            const vegApenas = document.getElementById('pref-veg').checked;
+            const leveApenas = document.getElementById('pref-leve').checked;
+            const premiumApenas = document.getElementById('pref-premium').checked;
+            const blocosCategorias = document.querySelectorAll('.category-block');
+
+            blocosCategorias.forEach(bloco => {
+                const idBloco = bloco.id.replace('cat-', '');
+                const cards = bloco.querySelectorAll('.food-card');
+                let possuiPratoVisivel = false;
+
+                cards.forEach(card => {
+                    const nome = card.querySelector('h3').innerText.toLowerCase();
+                    const desc = card.querySelector('p').innerText.toLowerCase();
+                    
+                    const matchesTexto = nome.includes(textoBusca) || desc.includes(textoBusca);
+                    const matchesVeg = !vegApenas || card.getAttribute('data-veg') === 'true';
+                    const matchesLeve = !leveApenas || card.getAttribute('data-leve') === 'true';
+                    const matchesPremium = !premiumApenas || card.getAttribute('data-premium') === 'true';
+
+                    if (matchesTexto && matchesVeg && matchesLeve && matchesPremium) {
+                        card.style.display = "flex";
+                        possuiPratoVisivel = true;
+                    } else {
+                        card.style.display = "none";
+                    }
+                });
+
+                if ((categoriaAtiva === 'todos' || idBloco === categoriaAtiva) && possuiPratoVisivel) {
+                    bloco.style.display = 'block';
+                } else {
+                    bloco.style.display = 'none';
+                }
+            });
+        }
+
+        function mostrarToast(mensagem) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-message').innerText = message = mensagem;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2500);
+        }
+
+        const cartSidebar = document.getElementById('cart-sidebar');
+        document.getElementById('open-cart-btn').addEventListener('click', () => cartSidebar.classList.add('open'));
+        document.getElementById('close-cart-btn').addEventListener('click', () => cartSidebar.classList.remove('open'));
+
+        function salvarCarrinho() {
+            localStorage.setItem('costa_bella_cart', JSON.stringify(carrinho));
+            localStorage.setItem('costa_bella_discount', JSON.stringify(descontoAplicado));
+        }
+
+        function adicionarAoCarrinho(nome, preco) {
+            const itemExistente = carrinho.find(item => item.nome === nome);
+            if (itemExistente) { 
+                itemExistente.quantidade++; 
+            } else { 
+                carrinho.push({ nome, preco, quantidade: 1, observacao: "" }); 
+            }
+            mostrarToast(`${nome} adicionado!`);
+            atualizarInterfaceCarrinho();
+        }
+
+        function mudarQuantidade(nome, mudanca) {
+            const item = carrinho.find(item => item.nome === nome);
+            if (item) {
+                item.quantidade += mudanca;
+                if (item.quantidade <= 0) {
+                    carrinho = carrinho.filter(i => i.nome !== nome);
+                }
+            }
+            atualizarInterfaceCarrinho();
+        }
+
+        function salvarObservacao(nome, texto) {
+            const item = carrinho.find(item => item.nome === nome);
+            if (item) item.observacao = texto;
+            localStorage.setItem('costa_bella_cart', JSON.stringify(carrinho));
+        }
+
+        function aplicarCupom() {
+            const cupom = document.getElementById('coupon-input').value.toUpperCase();
+            if (cupom === 'PRAIA10') {
+                descontoAplicado = true;
+                mostrarToast('Cupom aplicado!');
+            } else {
+                descontoAplicado = false;
+                mostrarToast('Cupom inválido!');
+            }
+            atualizarInterfaceCarrinho();
+        }
+
+        function verificarMetodoEntrega() {
+            const metodo = document.getElementById('delivery-method').value;
+            const wrapperEndereco = document.getElementById('address-wrapper');
+            if (metodo === 'delivery') {
+                wrapperEndereco.style.display = 'block';
+            } else {
+                wrapperEndereco.style.display = 'none';
+            }
+        }
+
+        function verificarFormaPagamento() {
+            const metodo = document.getElementById('payment-method').value;
+            const wrapperTroco = document.getElementById('change-wrapper');
+            if (metodo === 'dinheiro') {
+                wrapperTroco.style.display = 'flex';
+                calcularTroco();
+            } else {
+                wrapperTroco.style.display = 'none';
+            }
+        }
+
+        function obterTotalAtual() {
+            let subtotal = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+            return descontoAplicado ? subtotal * 0.90 : subtotal;
+        }
+
+        function calcularTroco() {
+            const valorPago = parseFloat(document.getElementById('change-for').value) || 0;
+            const totalPedido = obterTotalAtual();
+            const campoResultado = document.getElementById('change-result');
+
+            if(valorPago === 0) {
+                campoResultado.innerText = "";
+            } else if (valorPago < totalPedido) {
+                campoResultado.innerText = "Valor menor que o total.";
+                campoResultado.style.color = "red";
+            } else {
+                let troco = valorPago - totalPedido;
+                campoResultado.innerText = `Troco: R$ ${troco.toFixed(2).replace('.', ',')}`;
+                campoResultado.style.color = "green";
+            }
+        }
+
+        function atualizarInterfaceCarrinho() {
+            const containerItens = document.getElementById('cart-items-container');
+            const subtotalValue = document.getElementById('cart-subtotal-value');
+            const discountRow = document.getElementById('discount-row');
+            const discountValue = document.getElementById('cart-discount-value');
+            const totalValue = document.getElementById('cart-total-value');
+            const cartCount = document.getElementById('cart-count');
+            
+            containerItens.innerHTML = '';
+            salvarCarrinho();
+            
+            if (carrinho.length === 0) {
+                containerItens.innerHTML = '<p style="text-align: center; color: #999; margin-top: 40px;">Sua sacola está vazia.</p>';
+                subtotalValue.innerText = 'R$ 0,00';
+                totalValue.innerText = 'R$ 0,00';
+                cartCount.innerText = '0';
+                discountRow.style.display = 'none';
+                document.getElementById('change-wrapper').style.display = 'none';
+                return;
+            }
+
+            let subtotal = 0;
+            let totalItens = 0;
+
+            carrinho.forEach(item => {
+                subtotal += item.preco * item.quantidade;
+                totalItens += item.quantidade;
+                
+                const itemElement = document.createElement('div');
+                itemElement.classList.add('cart-item');
+                itemElement.innerHTML = `
+                    <div class="cart-item-row">
+                        <div class="cart-item-info">
+                            <h4>${item.nome}</h4>
+                            <span>R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="btn-qty" onclick="mudarQuantidade('${item.nome}', -1)">-</button>
+                            <span>${item.quantidade}</span>
+                            <button class="btn-qty" onclick="mudarQuantidade('${item.nome}', 1)">+</button>
+                        </div>
+                    </div>
+                    <textarea class="cart-item-obs" placeholder="Alguma restrição ou observação?" oninput="salvarObservacao('${item.nome}', this.value)">${item.observacao || ''}</textarea>
+                `;
+                containerItens.appendChild(itemElement);
+            });
+
+            let valorDesconto = descontoAplicado ? subtotal * 0.10 : 0;
+            let totalGeral = subtotal - valorDesconto;
+
+            subtotalValue.innerText = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            cartCount.innerText = totalItens;
+
+            if (descontoAplicado) {
+                discountRow.style.display = 'flex';
+                discountValue.innerText = `- R$ ${valorDesconto.toFixed(2).replace('.', ',')}`;
+            } else {
+                discountRow.style.display = 'none';
+            }
+
+            totalValue.innerText = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+            verificarFormaPagamento();
+        }
+
+        function finalizarPedido() {
+            if(carrinho.length === 0) {
+                mostrarToast("Sua sacola está vazia.");
+                return;
+            }
+
+            const metodoEntrega = document.getElementById('delivery-method').value;
+            const endereco = document.getElementById('delivery-address').value.trim();
+
+            if (metodoEntrega === 'delivery' && !endereco) {
+                alert("Por favor, preencha seu endereço completo para o Delivery.");
+                return;
+            }
+
+            const numeroSenha = Math.floor(Math.random() * 900) + 100;
+            const tipoTexto = metodoEntrega === 'delivery' ? 'DELIVERY' : 'RETIRADA NO BALCÃO';
+
+            alert(`🎉 Pedido Enviado para a Cozinha!\n\nSua Senha é: #${numeroSenha}\nTipo: ${tipoTexto}\n\nAcompanhe seu painel ou aguarde a chamada.`);
+
+            carrinho = [];
+            descontoAplicado = false;
+            document.getElementById('change-for').value = "";
+            document.getElementById('delivery-address').value = "";
+            atualizarInterfaceCarrinho();
+            cartSidebar.classList.remove('open');
+            mostrarToast(`Pedido #${numeroSenha} processado!`);
+        }
+
+        function definirEstrelas(nota) {
+            notaAvaliacao = nota;
+            const estrelas = document.querySelectorAll('.star');
+            estrelas.forEach(estrela => {
+                const valorEstrela = parseInt(estrela.getAttribute('data-value'));
+                if (valorEstrela <= nota) {
+                    estrela.classList.add('active');
+                } else {
+                    estrela.classList.remove('active');
+                }
+            });
+        }
+
+        function enviarAvaliacao() {
+            if (notaAvaliacao === 0) {
+                mostrarToast("Por favor, selecione uma nota de 1 a 5.");
+                return;
+            }
+            mostrarToast("⭐ Obrigado pelo seu feedback!");
+            notaAvaliacao = 0;
+            document.querySelectorAll('.star').forEach(e => e.classList.remove('active'));
+            document.getElementById('review-text').value = "";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Reservas - Costa Bella</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f4f4; color: #333; padding: 40px 5%; }
+        .header-painel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 3px solid #f79256; padding-bottom: 15px; }
+        h1 { color: #1d4e89; }
+        .btn-voltar { background: #1d4e89; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; transition: background 0.3s; }
+        .btn-voltar:hover { background: #00b2ca; }
+        .tabela-container { background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 15px 20px; }
+        th { background-color: #00b2ca; color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
+        .sem-reservas { text-align: center; padding: 40px; color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="header-painel">
+        <h1>📋 Reservas Confirmadas</h1>
+        <a href="{{ url_for('restaurante') }}" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Cardápio</a>
+    </div>
+
+    <div class="tabela-container">
+        <table>
+            <thead>
+                <tr>
+                    <th><i class="fa-solid fa-user"></i> Cliente</th>
+                    <th><i class="fa-solid fa-phone"></i> Telefone</th>
+                    <th><i class="fa-solid fa-calendar-days"></i> Data</th>
+                    <th><i class="fa-solid fa-users"></i> Mesa para</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if reservas %}
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td><strong>{{ reserva.nome }}</strong></td>
+                        <td>{{ reserva.telefone }}</td>
+                        <td>{{ reserva.data }}</td>
+                        <td>{{ reserva.pessoas }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="sem-reservas">Nenhuma reserva encontrada até o momento.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
